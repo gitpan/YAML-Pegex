@@ -1,3 +1,6 @@
+0.0.3 Fri May 23 12:59:56 PDT 2014
+ - Fix pause indexing from bad package name. tobyink++
+
 0.0.2 Fri May 23 08:52:55 PDT 2014
  - Add sequence support
 

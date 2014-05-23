@@ -1,5 +1,5 @@
 package YAML::Pegex::Grammar;
-$YAML::Pegex::Grammar::VERSION = '0.0.2';
+$YAML::Pegex::Grammar::VERSION = '0.0.3';
 use base 'Pegex::Grammar';
 
 use constant file => 'share/yaml.pgx';
