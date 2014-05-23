@@ -1,5 +1,5 @@
 package YAML::Pegex::Grammar;
-$YAML::Pegex::Grammar::VERSION = '0.0.1';
+$YAML::Pegex::Grammar::VERSION = '0.0.2';
 use base 'Pegex::Grammar';
 
 use constant file => 'share/yaml.pgx';
@@ -10,37 +10,7 @@ sub make_tree {
     'EOL' => {
       '.rgx' => qr/\G\r?\n/
     },
-    'document' => {
-      '.any' => [
-        {
-          '.ref' => 'mapping'
-        },
-        {
-          '.ref' => 'sequence'
-        },
-        {
-          '.ref' => 'scalar'
-        }
-      ]
-    },
-    'key' => {
-      '.ref' => 'scalar'
-    },
-    'key_value_pair' => {
-      '.all' => [
-        {
-          '.ref' => 'key'
-        },
-        {
-          '.ref' => 'mapping_separator'
-        },
-        {
-          '.ref' => 'value'
-        }
-      ]
-    },
-    'mapping' => {
-      '+max' => 1,
+    'block_mapping' => {
       '.all' => [
         {
           '.ref' => 'key_value_pair'
@@ -60,6 +30,42 @@ sub make_tree {
         {
           '+max' => 1,
           '.ref' => 'EOL'
+        }
+      ]
+    },
+    'block_sequence' => {
+      '+min' => 1,
+      '.ref' => 'block_sequence_entry'
+    },
+    'block_sequence_entry' => {
+      '.rgx' => qr/\G\-\ +([^:\r\n]+)\r?\n/
+    },
+    'document' => {
+      '.any' => [
+        {
+          '.ref' => 'block_sequence'
+        },
+        {
+          '.ref' => 'block_mapping'
+        },
+        {
+          '.ref' => 'scalar'
+        }
+      ]
+    },
+    'key' => {
+      '.ref' => 'scalar'
+    },
+    'key_value_pair' => {
+      '.all' => [
+        {
+          '.ref' => 'key'
+        },
+        {
+          '.ref' => 'mapping_separator'
+        },
+        {
+          '.ref' => 'value'
         }
       ]
     },
