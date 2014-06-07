@@ -1,6 +1,6 @@
 use strict;
 package YAML::Pegex::Receiver;
-$YAML::Pegex::Receiver::VERSION = '0.0.3';
+$YAML::Pegex::Receiver::VERSION = '0.0.4';
 use base 'Pegex::Tree';
 
 sub initial {
@@ -14,24 +14,55 @@ sub setup {
     my ($self) = @_;
     $self->{stack} = [];
     $self->{kind} = [];
-    $self->{level} = 0;
+    $self->{level} = -1;
 }
 
 sub final {
     my ($self, $got) = @_;
     if ($self->{kind}[0] eq 'mapping') {
-        $self->send('MAPPING_END');
+        $self->send('MAPPING_END', 'block');
     }
     elsif ($self->{kind}[0] eq 'sequence') {
-        $self->send('SEQUENCE_END');
+        $self->send('SEQUENCE_END', 'block');
     }
     $self->send('DOCUMENT_END');
     $self->send('STREAM_END');
     return $self->data;
 }
 
+sub got_flow_mapping_start {
+    my ($self, $got) = @_;
+    $self->send('MAPPING_START', 'flow');
+    my $level = ++$self->{level};
+    $self->{kind}[$self->{$level}] = 'mapping';
+    return;
+}
 
-sub got_scalar {
+sub got_flow_mapping_end {
+    my ($self, $got) = @_;
+    $self->send('MAPPING_END', 'flow');
+    $self->{level}--;
+    pop @{$self->{kind}};
+    return;
+}
+
+sub got_flow_sequence_start {
+    my ($self, $got) = @_;
+    $self->send('SEQUENCE_START', 'flow');
+    my $level = ++$self->{level};
+    $self->{kind}[$self->{$level}] = 'sequence';
+    return;
+}
+
+sub got_flow_sequence_end {
+    my ($self, $got) = @_;
+    $self->send('SEQUENCE_END', 'flow');
+    $self->{level}--;
+    pop @{$self->{kind}};
+    return;
+}
+
+sub got_block_scalar {
     my ($self, $got) = @_;
     if ($self->{kind}[$self->{level}]) {
         $self->send(SCALAR => $got, 'plain')
@@ -42,11 +73,18 @@ sub got_scalar {
     return;
 }
 
+sub got_flow_scalar {
+    my ($self, $got) = @_;
+    $self->send(SCALAR => $got, 'plain');
+    return;
+}
+
 sub got_mapping_separator {
     my ($self, $got) = @_;
     if (not $self->{kind}[$self->{level}]) {
-        $self->{kind}[$self->{$self->{level}}] = 'mapping';
-        $self->send('MAPPING_START');
+        my $level = ++$self->{level};
+        $self->{kind}[$self->{$level}] = 'mapping';
+        $self->send('MAPPING_START', 'block');
         my $key = pop @{$self->{stack}};
         shift @$key;
         $self->send(SCALAR => @$key);
@@ -57,8 +95,9 @@ sub got_mapping_separator {
 sub got_block_sequence_entry {
     my ($self, $got) = @_;
     if (not $self->{kind}[$self->{level}]) {
-        $self->{kind}[$self->{$self->{level}}] = 'sequence';
-        $self->send('SEQUENCE_START');
+        my $level = ++$self->{level};
+        $self->{kind}[$self->{$level}] = 'sequence';
+        $self->send('SEQUENCE_START', 'block');
     }
     $self->send(SCALAR => $got, 'plain');
     return;

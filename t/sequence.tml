@@ -1,7 +1,29 @@
-=== Single Entry Sequence
+=== Single Entry Block Sequence
 --- yaml
 - foo
 --- events
-SEQUENCE_START
+SEQUENCE_START,block
 SCALAR,plain foo
-SEQUENCE_END
+SEQUENCE_END,block
+
+=== Multiple Entry Block Sequence
+--- yaml
+- foo
+- bar
+- 42
+--- events
+SEQUENCE_START,block
+SCALAR,plain foo
+SCALAR,plain bar
+SCALAR,plain 42
+SEQUENCE_END,block
+
+=== Flow Sequence
+--- yaml
+[foo, bar, 42]
+--- events
+SEQUENCE_START,flow
+SCALAR,plain foo
+SCALAR,plain bar
+SCALAR,plain 42
+SEQUENCE_END,flow
