@@ -6,7 +6,6 @@ build_requires:
   YAML::XS: '0'
 configure_requires:
   ExtUtils::MakeMaker: '6.30'
-  File::ShareDir::Install: '0.06'
 dynamic_config: 0
 generated_by: 'Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.132830'
 license: perl
@@ -19,6 +18,7 @@ no_index:
     - inc
     - t
     - xt
+    - example
 requires:
   Pegex: '0.30'
   perl: v5.8.1
@@ -26,4 +26,4 @@ resources:
   bugtracker: https://github.com/ingydotnet/yaml-pegex-pm/issues
   homepage: https://github.com/ingydotnet/yaml-pegex-pm
   repository: https://github.com/ingydotnet/yaml-pegex-pm.git
-version: 0.0.4
+version: 0.0.5

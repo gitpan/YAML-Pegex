@@ -1,6 +1,6 @@
 use strict;
 package YAML::Pegex::Receiver::Test;
-$YAML::Pegex::Receiver::Test::VERSION = '0.0.4';
+
 use base 'YAML::Pegex::Receiver';
 
 sub initial {

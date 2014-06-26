@@ -1,8 +1,8 @@
 package YAML::Pegex::Grammar;
-$YAML::Pegex::Grammar::VERSION = '0.0.4';
+
 use base 'Pegex::Grammar';
 
-use constant file => 'share/yaml.pgx';
+use constant file => '../yaml-pgx/yaml.pgx';
 
 sub make_tree {
   {

@@ -1,6 +1,6 @@
 use strict;
 package YAML::Pegex::Receiver;
-$YAML::Pegex::Receiver::VERSION = '0.0.4';
+
 use base 'Pegex::Tree';
 
 sub initial {
