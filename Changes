@@ -1,3 +1,6 @@
+0.0.6 Tue Jul  1 10:16:27 PDT 2014
+ - Support indentation in YAML
+
 0.0.5 Thu Jun 26 15:01:01 PDT 2014
  - Remove grammar from share for now
  - Kwim to swim

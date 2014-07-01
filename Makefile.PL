@@ -20,12 +20,9 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "YAML::Pegex",
   "PREREQ_PM" => {
-    "Pegex" => "0.30"
+    "Pegex" => "0.39"
   },
-  "TEST_REQUIRES" => {
-    "YAML::XS" => 0
-  },
-  "VERSION" => "0.0.5",
+  "VERSION" => "0.0.6",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -33,8 +30,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Pegex" => "0.30",
-  "YAML::XS" => 0
+  "Pegex" => "0.39"
 );
 
 

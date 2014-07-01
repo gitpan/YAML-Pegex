@@ -1,9 +1,60 @@
+use strict; use warnings;
 package YAML::Pegex::Grammar;
-
-use base 'Pegex::Grammar';
+use Pegex::Base;
+extends 'Pegex::Grammar';
 
 use constant file => '../yaml-pgx/yaml.pgx';
 
+has indent => [];
+
+sub rule_block_indent {
+    my ($self, $parser, $buffer, $pos) = @_;
+    my $indents = $self->{indent};
+    pos($$buffer) = $pos;
+    return if $pos >= length($$buffer);
+    if ($pos == 0) {
+        $$buffer =~ /\G( *)(?=[^\s\#])/g or die;
+        push @$indents, length($1);
+        return $parser->match_rule($pos);
+    }
+    my $len = @$indents ? $indents->[-1] + 1 : 0;
+    $$buffer =~ /\G\r?\n( {$len,})(?=[^\s\#])/g or return;
+    push @$indents, length($1);
+    return $parser->match_rule($pos);
+}
+
+sub rule_block_ondent {
+    my ($self, $parser, $buffer, $pos) = @_;
+    my $indents = $self->{indent};
+    my $len = $indents->[-1];
+    my $re = $pos > 0 ? '\r?\n' : '';
+    pos($$buffer) = $pos;
+    $$buffer =~ /\G$re( {$len})(?=[^\s\#])/g or return;
+    return $parser->match_rule(pos($$buffer));
+}
+
+sub rule_block_undent {
+    my ($self, $parser, $buffer, $pos) = @_;
+    my $indents = $self->{indent};
+    return unless @$indents;
+    my $len = $indents->[-1];
+    pos($$buffer) = $pos;
+    if ($$buffer =~ /\G((?:\r?\n)?)\z/ or
+        $$buffer !~ /\G\r?\n( {$len})/g
+    ) {
+        pop @$indents;
+        return $parser->match_rule($pos);
+    }
+    return;
+}
+
+# sub make_tree {
+#     use Pegex::Bootstrap;
+#     use IO::All;
+#     my $grammar = io->file(file)->all;
+#     Pegex::Bootstrap->new->compile($grammar)->tree;
+# }
+# sub make_treeXXX {
 sub make_tree {
   {
     '+grammar' => 'yaml',
@@ -12,11 +63,11 @@ sub make_tree {
     'EOL' => {
       '.rgx' => qr/\G\r?\n/
     },
+    'EOS' => {
+      '.rgx' => qr/\G\z/
+    },
     'SPACE' => {
       '.rgx' => qr/\G\ /
-    },
-    'block_indent' => {
-      '.rgx' => qr/\G/
     },
     'block_key' => {
       '.ref' => 'block_scalar'
@@ -27,33 +78,11 @@ sub make_tree {
           '.ref' => 'block_indent'
         },
         {
-          '.all' => [
-            {
-              '.ref' => 'block_mapping_pair'
-            },
-            {
-              '+min' => 0,
-              '-flat' => 1,
-              '.all' => [
-                {
-                  '.ref' => 'ignore_line'
-                },
-                {
-                  '.ref' => 'block_mapping_pair'
-                }
-              ]
-            }
-          ]
+          '+min' => 1,
+          '.ref' => 'block_mapping_pair'
         },
         {
-          '.all' => [
-            {
-              '.ref' => 'EOL'
-            },
-            {
-              '.ref' => 'block_undent'
-            }
-          ]
+          '.ref' => 'block_undent'
         }
       ]
     },
@@ -66,55 +95,49 @@ sub make_tree {
           '.ref' => 'block_key'
         },
         {
-          '.ref' => 'mapping_separator'
+          '.ref' => 'block_mapping_separator'
         },
         {
           '.ref' => 'block_value'
         }
       ]
     },
-    'block_ondent' => {
-      '.rgx' => qr/\G/
+    'block_mapping_separator' => {
+      '.rgx' => qr/\G:(?:\ +|\ *(?=\r?\n))/
     },
-    'block_scalar' => {
-      '.rgx' => qr/\G(\|\r?\nXXX|\>\r?\nXXX|"[^"]*"|'[^']*'|(?![&\*\#\{\}\[\]%`]).+?(?=:\ |\r?\n|\z))/
-    },
-    'block_sequence' => {
-      '.all' => [
+    'block_node' => {
+      '.any' => [
         {
-          '.ref' => 'block_sequence_entry'
+          '.ref' => 'block_sequence'
         },
         {
-          '+min' => 0,
-          '-flat' => 1,
-          '.all' => [
-            {
-              '.ref' => 'list_separator'
-            },
-            {
-              '.ref' => 'block_sequence_entry'
-            }
-          ]
+          '.ref' => 'block_mapping'
         },
         {
-          '+max' => 1,
-          '.ref' => 'list_separator'
+          '.ref' => 'block_scalar'
         }
       ]
     },
-    'block_sequence_entry' => {
-      '.rgx' => qr/\G\-\ +(\|\r?\nXXX|\>\r?\nXXX|"[^"]*"|'[^']*'|(?![&\*\#\{\}\[\]%`]).+?(?=:\ |\r?\n|\z))\r?\n/
+    'block_scalar' => {
+      '.rgx' => qr/\G(\|\r?\nXXX|\>\r?\nXXX|"[^"]*"|'[^']*'|(?![&\*\#\{\}\[\]%`\@]).+?(?=:\s|\r?\n|\z))/
     },
-    'block_undent' => {
-      '.rgx' => qr/\G/
+    'block_sequence' => {
+      '+min' => 1,
+      '.ref' => 'block_sequence_entry'
+    },
+    'block_sequence_entry' => {
+      '.rgx' => qr/\G\-\ +(\|\r?\nXXX|\>\r?\nXXX|"[^"]*"|'[^']*'|(?![&\*\#\{\}\[\]%`\@]).+?(?=:\s|\r?\n|\z))\r?\n/
     },
     'block_value' => {
       '.any' => [
         {
-          '.ref' => 'block_scalar'
+          '.ref' => 'flow_mapping'
         },
         {
-          '.ref' => 'flow_node'
+          '.ref' => 'flow_sequence'
+        },
+        {
+          '.ref' => 'block_node'
         }
       ]
     },
@@ -167,12 +190,15 @@ sub make_tree {
           '.ref' => 'flow_node'
         },
         {
-          '.ref' => 'mapping_separator'
+          '.ref' => 'flow_mapping_separator'
         },
         {
           '.ref' => 'flow_node'
         }
       ]
+    },
+    'flow_mapping_separator' => {
+      '.rgx' => qr/\G:(?:\ +|\ *(?=\r?\n))/
     },
     'flow_mapping_start' => {
       '.rgx' => qr/\G\s*\{\s*/
@@ -191,7 +217,7 @@ sub make_tree {
       ]
     },
     'flow_scalar' => {
-      '.rgx' => qr/\G("[^"]*"|'[^']*'|(?![&\*\#\{\}\[\]%`]).+?(?=[&\*\#\{\}\[\]%,]|:\ |,\ |\r?\n|\z))/
+      '.rgx' => qr/\G("[^"]*"|'[^']*'|(?![&\*\#\{\}\[\]%`\@]).+?(?=[&\*\#\{\}\[\]%,]|:\ |,\ |\r?\n|\z))/
     },
     'flow_sequence' => {
       '.all' => [
@@ -237,13 +263,10 @@ sub make_tree {
       '.rgx' => qr/\G\s*\[\s*/
     },
     'ignore_line' => {
-      '.rgx' => qr/\G(?:[\ \t]*|\#.*)\r?\n/
+      '.rgx' => qr/\G(?:\#.*|[\ \t]*)(?=\r?\n)/
     },
     'list_separator' => {
       '.rgx' => qr/\G,\ +/
-    },
-    'mapping_separator' => {
-      '.rgx' => qr/\G:\ +/
     },
     'node_alias' => {
       '.rgx' => qr/\G\*(\w+)/
@@ -321,6 +344,17 @@ sub make_tree {
             },
             {
               '.ref' => 'block_scalar'
+            }
+          ]
+        },
+        {
+          '.all' => [
+            {
+              '+max' => 1,
+              '.ref' => 'EOL'
+            },
+            {
+              '.ref' => 'EOS'
             }
           ]
         }
