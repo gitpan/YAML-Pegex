@@ -39,7 +39,7 @@ sub rule_block_undent {
     return unless @$indents;
     my $len = $indents->[-1];
     pos($$buffer) = $pos;
-    if ($$buffer =~ /\G((?:\r?\n)?)\z/ or
+    if ($$buffer =~ /\G((?:\r?\n)?)(?=\z|\.\.\.\r?\n|\-\-\-\r?\n)/ or
         $$buffer !~ /\G\r?\n( {$len})/g
     ) {
         pop @$indents;
@@ -63,14 +63,11 @@ sub make_tree {
     'EOL' => {
       '.rgx' => qr/\G\r?\n/
     },
-    'EOS' => {
-      '.rgx' => qr/\G\z/
-    },
     'SPACE' => {
       '.rgx' => qr/\G\ /
     },
     'block_key' => {
-      '.ref' => 'block_scalar'
+      '.rgx' => qr/\G(\|\r?\nXXX|\>\r?\nXXX|"[^"]*"|'[^']*'|(?![&\*\#\{\}\[\]%`\@]).+?(?=:\s|\r?\n|\z)):(?:\ +|\ *(?=\r?\n))/
     },
     'block_mapping' => {
       '.all' => [
@@ -95,15 +92,9 @@ sub make_tree {
           '.ref' => 'block_key'
         },
         {
-          '.ref' => 'block_mapping_separator'
-        },
-        {
           '.ref' => 'block_value'
         }
       ]
-    },
-    'block_mapping_separator' => {
-      '.rgx' => qr/\G:(?:\ +|\ *(?=\r?\n))/
     },
     'block_node' => {
       '.any' => [
@@ -348,15 +339,8 @@ sub make_tree {
           ]
         },
         {
-          '.all' => [
-            {
-              '+max' => 1,
-              '.ref' => 'EOL'
-            },
-            {
-              '.ref' => 'EOS'
-            }
-          ]
+          '+max' => 1,
+          '.ref' => 'EOL'
         }
       ]
     },

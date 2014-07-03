@@ -7,9 +7,10 @@ META.yml
 Makefile.PL
 README
 inc/Pegex/Base.pm
+inc/Pegex/Bootstrap.pm
+inc/Pegex/Compiler.pm
 inc/Pegex/Grammar.pm
 inc/Pegex/Input.pm
-inc/Pegex/Optimizer.pm
 inc/Pegex/Parser.pm
 inc/Pegex/Receiver.pm
 inc/Pegex/Tree.pm
@@ -32,6 +33,7 @@ lib/YAML/Pegex.pod
 lib/YAML/Pegex/Grammar.pm
 lib/YAML/Pegex/Receiver.pm
 lib/YAML/Pegex/Receiver/Test.pm
+t/footer.tml
 t/indent.tml
 t/mapping.tml
 t/release-pod-syntax.t

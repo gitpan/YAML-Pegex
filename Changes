@@ -1,3 +1,7 @@
+0.0.7 Thu Jul  3 10:57:01 PDT 2014
+ - Support ... footer
+ - Improve mapping support
+
 0.0.6 Tue Jul  1 10:16:27 PDT 2014
  - Support indentation in YAML
 
