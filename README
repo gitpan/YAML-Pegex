@@ -2,7 +2,7 @@ NAME
     YAML::Pegex - YAML Parser using Pegex
 
 SYNOPSIS
-          my $data = YAML::Pegex->new->parse($input);
+        my $data = YAML::Pegex->new->parse($input);
 
 DESCRIPTION
     YAML::Pegex is a YAML parser written in Pegex.
