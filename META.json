@@ -37,6 +37,11 @@
             "Pegex" : "0.39",
             "perl" : "v5.8.1"
          }
+      },
+      "test" : {
+         "requires" : {
+            "TestML" : "0"
+         }
       }
    },
    "release_status" : "stable",
@@ -51,6 +56,6 @@
          "web" : "https://github.com/ingydotnet/yaml-pegex-pm"
       }
    },
-   "version" : "0.0.10"
+   "version" : "0.0.11"
 }
 
