@@ -2,8 +2,7 @@
 abstract: 'YAML Parser in Pegex'
 author:
   - 'Ingy döt Net <ingy@cpan.org>'
-build_requires:
-  TestML: '0'
+build_requires: {}
 configure_requires:
   ExtUtils::MakeMaker: '6.30'
 dynamic_config: 0
@@ -26,4 +25,4 @@ resources:
   bugtracker: https://github.com/ingydotnet/yaml-pegex-pm/issues
   homepage: https://github.com/ingydotnet/yaml-pegex-pm
   repository: https://github.com/ingydotnet/yaml-pegex-pm.git
-version: 0.0.11
+version: 0.0.12

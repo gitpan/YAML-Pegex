@@ -22,10 +22,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Pegex" => "0.39"
   },
-  "TEST_REQUIRES" => {
-    "TestML" => 0
-  },
-  "VERSION" => "0.0.11",
+  "VERSION" => "0.0.12",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -33,8 +30,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Pegex" => "0.39",
-  "TestML" => 0
+  "Pegex" => "0.39"
 );
 
 
