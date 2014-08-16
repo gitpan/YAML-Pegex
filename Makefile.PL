@@ -22,7 +22,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "Pegex" => "0.39"
   },
-  "VERSION" => "0.0.14",
+  "VERSION" => "0.0.15",
   "test" => {
     "TESTS" => "t/*.t"
   }
