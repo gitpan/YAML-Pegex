@@ -5,36 +5,29 @@ use Pegex::Input;
 use Pegex::Optimizer;
 use Scalar::Util;
 
-{
-    package Pegex::Constant;
-    our $Null = [];
-    our $Dummy = [];
-}
-
 has grammar => (required => 1);
 has receiver => ();
 has input => ();
-
-has rule => ();
-has parent => ();
-has 'debug' => (
-    default => sub {
-        exists($ENV{PERL_PEGEX_DEBUG}) ? $ENV{PERL_PEGEX_DEBUG} :
-        defined($Pegex::Parser::Debug) ? $Pegex::Parser::Debug :
-        0;
-    },
+has debug => (
+    exists($ENV{PERL_PEGEX_DEBUG}) ? $ENV{PERL_PEGEX_DEBUG} :
+    defined($Pegex::Parser::Debug) ? $Pegex::Parser::Debug :
+    0
 );
+sub BUILD {
+    my ($self) = @_;
+    $self->{throw_on_error} ||= 1;
+    # $self->{rule} = undef;
+    # $self->{parent} = undef;
+    # $self->{error} = undef;
+    # $self->{position} = undef;
+    # $self->{farthest} = undef;
+}
 
-has position => 0;
-has farthest => 0;
-
-has throw_on_error => 1;
-
+# XXX Add an optional $position argument. Default to 0. This is the position
+# to start parsing. Set position and farthest below to this value. Allows for
+# sub-parsing. Need to somehow return the finishing position of a subparse.
+# Maybe this all goes in a subparse() method.
 sub parse {
-    # XXX Add an optional $position argument. Default to 0. This is the
-    # position to start parsing. Set position and farthest below to this
-    # value. Allows for sub-parsing. Need to somehow return the finishing
-    # position of a subparse. Maybe this all goes in a subparse() method.
     my ($self, $input, $start) = @_;
 
     $start =~ s/-/_/g if $start;
@@ -137,7 +130,6 @@ sub match_next {
             if ($self->{position} = $position) > $self->{farthest};
     }
 
-    # YYY ($result ? $next->{'-skip'} ? [] : $match : 0) if $main::x;
     ($result ? $next->{'-skip'} ? [] : $match : 0);
 }
 
@@ -180,10 +172,10 @@ sub match_rgx {
         if $self->{position} > $self->{farthest};
 
     no strict 'refs';
-    my $match = [ map $$_, 1..$#+ ];
-    $match = [ $match ] if $#+ > 1;
+    my $captures = [ map $$_, 1..$#+ ];
+    $captures = [ $captures ] if $#+ > 1;
 
-    return $match;
+    return $captures;
 }
 
 sub match_all {
@@ -283,6 +275,13 @@ sub line_column {
     my $line = @{[substr($$buffer, 0, $position) =~ /(\n)/g]} + 1;
     my $column = $position - rindex($$buffer, "\n", $position);
     return [$line, $position];
+}
+
+# XXX Need to figure out what uses this. (sample.t)
+{
+    package Pegex::Constant;
+    our $Null = [];
+    our $Dummy = [];
 }
 
 1;

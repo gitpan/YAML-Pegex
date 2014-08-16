@@ -13,6 +13,7 @@ inc/Pegex/Bootstrap.pm
 inc/Pegex/Compiler.pm
 inc/Pegex/Grammar.pm
 inc/Pegex/Input.pm
+inc/Pegex/Optimizer.pm
 inc/Pegex/Parser.pm
 inc/Pegex/Receiver.pm
 inc/Pegex/Tree.pm
@@ -24,7 +25,6 @@ inc/TestML/Compiler/Lite.pm
 inc/TestML/Compiler/Pegex.pm
 inc/TestML/Compiler/Pegex/AST.pm
 inc/TestML/Compiler/Pegex/Grammar.pm
-inc/TestML/Library.pm
 inc/TestML/Library/Debug.pm
 inc/TestML/Library/Standard.pm
 inc/TestML/Runtime.pm
@@ -35,6 +35,7 @@ lib/YAML/Pegex.pod
 lib/YAML/Pegex/Grammar.pm
 lib/YAML/Pegex/Receiver.pm
 lib/YAML/Pegex/Receiver/Test.pm
+t/000-compile-modules.t
 t/footer.tml
 t/indent.tml
 t/mapping.tml
