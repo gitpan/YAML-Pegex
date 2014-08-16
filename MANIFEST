@@ -35,6 +35,7 @@ lib/YAML/Pegex.pod
 lib/YAML/Pegex/Grammar.pm
 lib/YAML/Pegex/Receiver.pm
 lib/YAML/Pegex/Receiver/Test.pm
+t/000-compile-modules.t
 t/footer.tml
 t/indent.tml
 t/mapping.tml
